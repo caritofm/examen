@@ -1,0 +1,29 @@
+
+{% extends 'tienda/main.html' %}
+{% block content %}
+<div class="container mt-4">
+    <h2>Listado de Productos</h2>
+    <a href="{% url 'producto_create' %}" class="btn btn-primary mb-2">Agregar Producto</a>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Precio</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for producto in productos %}
+            <tr>
+                <td>{{ producto.name }}</td>
+                <td>${{ producto.precio }}</td>
+                <td>
+                    <a href="{% url 'producto_update' producto.id %}" class="btn btn-sm btn-outline-primary">Editar</a>
+                    <a href="{% url 'producto_delete' producto.id %}" class="btn btn-sm btn-outline-danger">Eliminar</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

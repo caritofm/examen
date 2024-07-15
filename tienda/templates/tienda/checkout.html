@@ -1,0 +1,161 @@
+{% extends 'tienda/main.html' %}
+
+{% load static %}
+{% block content %}
+<div class="row">
+    <div class="col-lg-6">
+        <div class="box-element " id="form-wrapper">
+            <form id="form">
+                <div id="user-info">
+                    <div class="form-field">
+                        <input required class="form-control" type="text" name="name" placeholder="Nombre..">
+                    </div>
+                    <div class="form-field">
+                        <input required class="form-control" type="email" name="email" placeholder="Email..">
+                    </div>
+                </div>
+                <div id="envio-info">
+                    <hr>
+                    <p>Informacion de envio:</p>
+                    <hr>
+                    <div class="form-field">
+                        <input class="form-control" type="text" name="direccion" placeholder="Direccion..">
+                    </div>
+                    <div class="form-field">
+                        <input class="form-control" type="text" name="ciudad" placeholder="ciudad..">
+                    </div>
+                    <div class="form-field">
+                        <input class="form-control" type="text" name="estado" placeholder="Region..">
+                    </div>
+                    <div class="form-field">
+                        <input class="form-control" type="text" name="zipcode" placeholder="Codigo Postal..">
+                    </div>
+                    <div class="form-field">
+                        <input class="form-control" type="text" name="pais" placeholder="Codigo Postal..">
+                    </div>
+
+                </div>
+                <hr>
+                <input id="form-button" class="btn btn-success" type="submit" value="Continuar">
+            </form>
+        </div>
+            <br>
+
+            <div class="box-element hidden" id="payment-info">
+                <small>Opcion Paypal</small>
+                <button id="make-payment">Pagar</button>
+
+            </div>
+
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="box-element">
+            <a class="btn btn-outline-dark" href="{% url 'carrito' %}">
+                &#x2190; Volver al carrito</a>
+            <hr>
+            <h3> Resumen del pedido</h3>
+            {% for item in items %}
+            <div class="cart-row">
+                <div style="flex:2"><img class="row-image" src="{{item.producto.imageURL}}"></div>
+                <div style="flex:2">
+                    <p>{{item.producto.name}}</p>
+                </div>
+                <div style="flex:1">
+                    <p>${{item.producto.precio}}</p>
+                </div>
+                <div style="flex:1">
+                    <p>{{item.producto.cantidad}}</p>
+                </div>
+            </div>
+            {% endfor %}
+            <h5>Items: {{orden.obtener_carrito_items}}</h5>
+            <h5>total: {{orden.obtener_carrito_total}}</h5>
+
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var envio = '{{orden.envio}}'
+    var total = '{{orden.obtener_carrito_total}}'
+    if (envio == 'False') {
+        document.getElementById('envio-info').innerHTML = ''
+
+    }
+    if (user != 'AnonymousUser') {
+        document.getElementById('user-info').innerHTML = ''
+    }
+    if (envio == 'False' && user != 'AnonymousUser') {
+        document.getElementById('form-wrapper').classList.add("hidden");
+
+        document.getElementById('payment-info').classList.remove("hidden");
+    }
+
+
+
+
+    var form = document.getElementById('form')
+
+    form.addEventListener('submit', function (e) {
+        e.preventDefault()
+        console.log('formulario submitted...')
+        document.getElementById('form-button').classList.add('hidden')
+        document.getElementById('payment-info').classList.remove('hidden')
+    })
+
+    document.getElementById('make-payment').addEventListener('click', function (e) {
+        submitFormData()
+    })
+
+
+    function submitFormData() {
+        console.log('click en boton de pago');
+
+        var userFormData = {
+            'name':null,
+            'email': null,
+            'total': total,
+        }
+
+        var envioInfo = {
+            'direccion':null,
+            'ciudad': null,
+            'estado': null,
+            'zipcode': null,
+        }
+
+        if (envio != 'False'){
+            envioInfo.direccion = form.direccion.value
+            envioInfo.ciudad = form.direccion.value
+            envioInfo.estado = form.estado.value
+            envioInfo.zipcode = form.zipcode.value
+        }
+
+        if (user == 'AnonymousUser'){
+            userFormData.name = form.name.value
+            userFormData.email = form.email.value
+            
+        }
+
+        var url = '/procesar_orden/'
+        fetch(url,{
+            method : 'POST',
+            headers :{
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            body:JSON.stringify({'form': userFormData, 'envio': envioInfo}
+
+            )
+        })
+        .then((response)=> response.json())
+        .then ((data)=>{
+            console.log('Success:', data);
+            alert('Transaccion completa');
+            window.location.href="{% url 'tienda' %}"
+        })
+    }
+
+</script>
+
+{% endblock content %}

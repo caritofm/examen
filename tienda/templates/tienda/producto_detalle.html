@@ -1,0 +1,55 @@
+{% extends 'tienda/main.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-md-6">
+            <img src="{{ producto.imageURL }}" class="img-fluid" alt="{{ producto.name }}">
+        </div>
+        <div class="col-md-6">
+            <h2>{{ producto.name }}</h2>
+            <p class="lead">${{ producto.precio|floatformat:2 }}</p>
+            <hr>
+            <button id="addToCartBtn" data-producto={{producto.id}} data-action="add" class="btn btn-outline-secondary add-btn update-cart" >Añadir al carrito</button>
+        </div>
+    </div>
+</div>
+{% if user.is_authenticated %}
+<div id="cartModal" class="modal">
+    <div class="modal-content">
+        <h2>Producto añadido al carrito</h2>
+        <p>El producto ha sido añadido a tu carrito de compras.</p>
+        <button id="closeModal" class="btn">Cerrar</button>
+    </div>
+</div>
+
+<script>
+    var modal = document.getElementById("cartModal");
+
+    var addToCartBtns = document.querySelectorAll('.update-cart');
+
+    var closeModalBtn = document.getElementById("closeModal");
+
+    if (addToCartBtns.length > 0 && modal) {
+        addToCartBtns.forEach(btn => {
+            btn.onclick = function() {
+                modal.style.display = "block";
+            }
+        });
+    }
+
+    if (closeModalBtn) {
+        closeModalBtn.onclick = function() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        }
+    }
+</script>
+{% endif %}
+{% endblock content %}
